@@ -3,34 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copiloto de Ventas AI (Groq Edition)</title>
+    <title>Copiloto WA Secrets 🔓</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white font-sans min-h-screen flex items-center justify-center p-4">
 
-    <div class="max-w-2xl w-full bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700">
-        <h1 class="text-2xl font-bold mb-2 text-green-400">⚡ Copiloto Groq</h1>
-        <p class="text-gray-400 mb-6 text-sm">Pega la conversación y obtén la respuesta perfecta al instante.</p>
-
-        <div class="mb-4">
-            <input type="password" id="apiKey" placeholder="Pega tu Groq API Key aquí (gsk_...)" 
-            class="w-full p-2 text-xs bg-gray-700 border border-gray-600 rounded text-gray-300 focus:outline-none focus:border-green-500">
+    <div class="max-w-3xl w-full bg-gray-800 p-6 md:p-10 rounded-3xl shadow-2xl border border-gray-700">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-green-400">🔓 Copiloto WA Secrets</h1>
+            <span class="text-xs bg-green-900 text-green-300 px-3 py-1 rounded-full border border-green-700">Modo Vendedor Pro</span>
         </div>
 
-        <textarea id="userInput" rows="6" placeholder="Pega aquí el mensaje del cliente..." 
-        class="w-full p-4 bg-gray-900 border border-gray-700 rounded-lg mb-4 text-white focus:ring-2 focus:ring-green-500 outline-none"></textarea>
+        <div class="mb-6">
+            <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Tu API Key de Groq (gsk_...)</label>
+            <input type="password" id="apiKey" placeholder="Pega aquí tu llave de Groq" 
+            class="w-full p-3 bg-gray-900 border border-gray-700 rounded-xl text-gray-300 focus:outline-none focus:border-green-500 transition-all">
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Pega TODA la conversación de WhatsApp aquí</label>
+            <textarea id="userInput" rows="12" placeholder="[11:16 p.m.] Cliente: ¿Es un CRM?&#10;[11:21 p.m.] Yo: Tiene parte de CRM, pero es más..." 
+            class="w-full p-4 bg-gray-900 border border-gray-700 rounded-2xl text-white focus:ring-2 focus:ring-green-500 outline-none text-sm leading-relaxed"></textarea>
+        </div>
 
         <button onclick="generarRespuesta()" id="btnEnviar"
-        class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg transition duration-300 shadow-lg">
-            Generar Respuesta Pro (Gratis)
+        class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-2xl transition duration-300 shadow-lg transform active:scale-95">
+            Generar Respuesta de Venta 🚀
         </button>
 
-        <div id="loading" class="hidden mt-4 text-center text-green-400 animate-pulse">Groq está pensando a la velocidad de la luz...</div>
+        <div id="loading" class="hidden mt-6 text-center text-green-400 animate-pulse font-medium">
+            Analizando historial y preparando el cierre...
+        </div>
         
-        <div id="resultContainer" class="hidden mt-6 p-4 bg-gray-700 rounded-lg border-l-4 border-green-500">
-            <p class="text-xs text-green-400 font-bold mb-1">SUGERENCIA DE RESPUESTA:</p>
-            <p id="resultText" class="text-gray-100 italic"></p>
-            <button onclick="copiarAlPortapapeles()" class="mt-3 text-xs bg-gray-600 px-2 py-1 rounded hover:bg-gray-500">Copiar texto</button>
+        <div id="resultContainer" class="hidden mt-8 p-6 bg-gray-900 rounded-2xl border-l-4 border-green-500 shadow-inner">
+            <div class="flex justify-between items-center mb-3">
+                <p class="text-xs text-green-400 font-bold uppercase tracking-widest">Sugerencia para enviar:</p>
+                <button onclick="copiarAlPortapapeles()" class="text-[10px] bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded-lg transition">
+                    Copiar texto
+                </button>
+            </div>
+            <p id="resultText" class="text-gray-200 text-base leading-relaxed whitespace-pre-wrap"></p>
         </div>
     </div>
 
@@ -44,13 +56,34 @@
             const resultText = document.getElementById('resultText');
 
             if(!apiKey || !input) {
-                alert("Por favor, ingresa tu API Key de Groq y el mensaje.");
+                alert("Brother, pega la API Key y la conversación primero.");
                 return;
             }
 
             btn.disabled = true;
             loading.classList.remove('hidden');
             resultContainer.classList.add('hidden');
+
+            // EL CEREBRO DE TU APP (TUS REGLAS DE VENTA)
+            const systemPrompt = `Actúa como el cerrador de WA Secrets. Tu estilo es humano, directo y empático. No uses lenguaje corporativo ni de CEO. Hablas de tú a tú.
+
+REGLAS DE CONOCIMIENTO (2026):
+1. EL PROBLEMA: En 2026 WhatsApp bloquea todo lo que huela a API oficial o nube. Por eso los negocios queman líneas.
+2. LA SOLUCIÓN: El 'Método Híbrido' (PC + Móvil). Corre sobre WhatsApp Web normal (SecretsBot). Sin API, sin nube. Simula actividad humana 100%.
+3. FUNCIONES TOP: Automatización de notas de voz (aparece 'Grabando audio'), envíos masivos seguros, seguimiento automático, CRM integrado.
+4. ECOSISTEMA: No es solo un software; son clases (+30), comunidad y estrategias para no perder el número.
+
+LÓGICA DE VENTA (Analiza el historial que pegue el usuario):
+- Si el cliente está frío o pregunta qué es: Califica preguntando si hace manual o usa herramientas, o si le han bloqueado.
+- Si el cliente pregunta funciones: Explica el poder de las notas de voz y cómo el sistema vende mientras duerme.
+- Si el cliente pregunta precio/pago: Lanza la oferta: Mensual $10 USD (Cupón: MARZO9) o Anual $50 USD. 
+- Link de pago siempre: https://pay.hotmart.com/W102668788K?checkoutMode=10
+
+ESTILO DE ESCRITURA:
+- Frases cortas.
+- Usa espacios entre párrafos (que no sea un bloque de texto).
+- Usa algún emoji ocasional (✅, 🔓, 🚀).
+- Termina con una pregunta para mantener la charla viva o el link si ya va a pagar.`;
 
             try {
                 const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -62,20 +95,22 @@
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
                         messages: [
-                            {
-                                role: "system", 
-                                content: "Eres un experto cerrador de ventas por WhatsApp con 14 años de experiencia. Responde de forma corta, persuasiva y directa."
-                            },
-                            {role: "user", content: `Analiza y responde esto: ${input}`}
-                        ]
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: `Aquí está el historial completo de la conversación, analízalo y dime qué responder ahora: \n\n${input}` }
+                        ],
+                        temperature: 0.7
                     })
                 });
 
                 const data = await response.json();
                 resultText.innerText = data.choices[0].message.content;
                 resultContainer.classList.remove('hidden');
+                
+                // Scroll automático al resultado
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+
             } catch (error) {
-                alert("Error con Groq. Revisa tu clave.");
+                alert("Hubo un error con Groq. Checa si tu API Key es correcta o si tienes internet.");
             } finally {
                 btn.disabled = false;
                 loading.classList.add('hidden');
@@ -85,7 +120,7 @@
         function copiarAlPortapapeles() {
             const texto = document.getElementById('resultText').innerText;
             navigator.clipboard.writeText(texto);
-            alert("¡Copiado!");
+            alert("¡Copiado! Pégalo en el chat con el cliente.");
         }
     </script>
 </body>

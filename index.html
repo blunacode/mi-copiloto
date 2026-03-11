@@ -4,86 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Copiloto WA Secrets 🔓</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'DM Sans', sans-serif; }
+        .glow { box-shadow: 0 0 24px rgba(34,197,94,0.15); }
+        textarea:focus, input:focus { box-shadow: 0 0 0 2px rgba(34,197,94,0.4); }
+        #resultText { font-family: 'DM Sans', sans-serif; }
+        .btn-pulse:not(:disabled):hover { box-shadow: 0 0 20px rgba(34,197,94,0.5); }
+    </style>
 </head>
-<body class="bg-gray-900 text-white font-sans min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-950 text-white min-h-screen flex items-center justify-center p-4">
 
-    <div class="max-w-3xl w-full bg-gray-800 p-6 md:p-10 rounded-3xl shadow-2xl border border-gray-700">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-green-400">🔓 Copiloto WA Secrets</h1>
-            <span class="text-xs bg-green-900 text-green-300 px-3 py-1 rounded-full border border-green-700">Modo Vendedor Pro</span>
+    <div class="max-w-3xl w-full bg-gray-900 p-6 md:p-10 rounded-3xl shadow-2xl border border-gray-800 glow">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-green-400 tracking-tight">🔓 Copiloto WA Secrets</h1>
+                <p class="text-xs text-gray-500 mt-1">Analiza el chat y te dice qué responder para cerrar</p>
+            </div>
+            <span class="text-xs bg-green-950 text-green-400 px-3 py-1 rounded-full border border-green-800">Modo Vendedor Pro</span>
+        </div>
+
+        <div class="mb-5">
+            <label class="block text-xs text-gray-500 mb-2 uppercase tracking-wider font-medium">Tu API Key de Groq</label>
+            <input type="password" id="apiKey" placeholder="gsk_..." 
+            class="w-full p-3 bg-gray-950 border border-gray-700 rounded-xl text-gray-300 focus:outline-none transition-all text-sm">
         </div>
 
         <div class="mb-6">
-            <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Tu API Key de Groq (gsk_...)</label>
-            <input type="password" id="apiKey" placeholder="Pega aquí tu llave de Groq" 
-            class="w-full p-3 bg-gray-900 border border-gray-700 rounded-xl text-gray-300 focus:outline-none focus:border-green-500 transition-all">
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Pega TODA la conversación de WhatsApp aquí</label>
-            <textarea id="userInput" rows="12" placeholder="[11:16 p.m.] Cliente: ¿Es un CRM?&#10;[11:21 p.m.] Yo: Tiene parte de CRM, pero es más..." 
-            class="w-full p-4 bg-gray-900 border border-gray-700 rounded-2xl text-white focus:ring-2 focus:ring-green-500 outline-none text-sm leading-relaxed"></textarea>
+            <label class="block text-xs text-gray-500 mb-2 uppercase tracking-wider font-medium">Pega toda la conversación de WhatsApp</label>
+            <textarea id="userInput" rows="13" placeholder="[11:16 p.m.] Cliente: es un CRM?&#10;[11:21 p.m.] Yo: tiene parte de CRM pero es más que eso..." 
+            class="w-full p-4 bg-gray-950 border border-gray-700 rounded-2xl text-white focus:outline-none text-sm leading-relaxed resize-none transition-all"></textarea>
         </div>
 
         <button onclick="generarRespuesta()" id="btnEnviar"
-        class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-2xl transition duration-300 shadow-lg transform active:scale-95">
+        class="btn-pulse w-full bg-green-600 hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition-all duration-300 transform active:scale-95">
             Generar Respuesta de Venta 🚀
         </button>
 
-        <div id="loading" class="hidden mt-6 text-center text-green-400 animate-pulse font-medium">
+        <div id="loading" class="hidden mt-6 text-center text-green-400 animate-pulse font-medium text-sm">
             Analizando historial y preparando el cierre...
         </div>
         
-        <div id="resultContainer" class="hidden mt-8 p-6 bg-gray-900 rounded-2xl border-l-4 border-green-500 shadow-inner">
-            <div class="flex justify-between items-center mb-3">
-                <p class="text-xs text-green-400 font-bold uppercase tracking-widest">Sugerencia para enviar:</p>
-                <button onclick="copiarAlPortapapeles()" class="text-[10px] bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded-lg transition">
-                    Copiar texto
+        <div id="resultContainer" class="hidden mt-8 p-6 bg-gray-950 rounded-2xl border-l-4 border-green-500">
+            <div class="flex justify-between items-center mb-4">
+                <p class="text-xs text-green-400 font-bold uppercase tracking-widest">Respuesta sugerida:</p>
+                <button onclick="copiarAlPortapapeles()" id="btnCopiar"
+                class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg transition font-medium">
+                    📋 Copiar
                 </button>
             </div>
-            <p id="resultText" class="text-gray-200 text-base leading-relaxed whitespace-pre-wrap"></p>
+            <p id="resultText" class="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap"></p>
         </div>
     </div>
 
     <script>
         async function generarRespuesta() {
-            const apiKey = document.getElementById('apiKey').value;
-            const input = document.getElementById('userInput').value;
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const input = document.getElementById('userInput').value.trim();
             const btn = document.getElementById('btnEnviar');
             const loading = document.getElementById('loading');
             const resultContainer = document.getElementById('resultContainer');
             const resultText = document.getElementById('resultText');
 
-            if(!apiKey || !input) {
-                alert("Brother, pega la API Key y la conversación primero.");
+            if (!apiKey || !input) {
+                alert("Pega la API Key y la conversación primero.");
                 return;
             }
 
             btn.disabled = true;
             loading.classList.remove('hidden');
             resultContainer.classList.add('hidden');
+            resultText.innerText = '';
 
-            // EL CEREBRO DE TU APP (TUS REGLAS DE VENTA)
-            const systemPrompt = `Actúa como el cerrador de WA Secrets. Tu estilo es humano, directo y empático. No uses lenguaje corporativo ni de CEO. Hablas de tú a tú.
+            const systemPrompt = `Eres el asistente de ventas de WA Secrets. Tu trabajo es leer el historial de conversación que te pasan y generar la mejor respuesta posible para avanzar hacia el cierre.
 
-REGLAS DE CONOCIMIENTO (2026):
-1. EL PROBLEMA: En 2026 WhatsApp bloquea todo lo que huela a API oficial o nube. Por eso los negocios queman líneas.
-2. LA SOLUCIÓN: El 'Método Híbrido' (PC + Móvil). Corre sobre WhatsApp Web normal (SecretsBot). Sin API, sin nube. Simula actividad humana 100%.
-3. FUNCIONES TOP: Automatización de notas de voz (aparece 'Grabando audio'), envíos masivos seguros, seguimiento automático, CRM integrado.
-4. ECOSISTEMA: No es solo un software; son clases (+30), comunidad y estrategias para no perder el número.
+CONTEXTO DEL PRODUCTO (lo que vendes):
+- WA Secrets es una herramienta que corre sobre WhatsApp Web en la PC del usuario (SecretsBot). No usa API oficial ni nube. Simula actividad humana para que WhatsApp no detecte nada.
+- En 2026 WhatsApp bloquea cualquier cosa que use API o servidores externos. Por eso los negocios queman líneas constantemente.
+- La solución es el Método Híbrido: PC + Móvil. Sin API, sin nube, sin bloqueos.
+- Funciones estrella: notas de voz automáticas (aparece "grabando audio" en tiempo real), seguimientos automáticos, envíos masivos sin ban, CRM integrado.
+- Incluye más de 30 clases, comunidad activa y estrategias para proteger el número.
+- Precio Mensual: $10 USD | Precio Anual: $50 USD
+- Link de pago: https://pay.hotmart.com/W102668788K?checkoutMode=10
 
-LÓGICA DE VENTA (Analiza el historial que pegue el usuario):
-- Si el cliente está frío o pregunta qué es: Califica preguntando si hace manual o usa herramientas, o si le han bloqueado.
-- Si el cliente pregunta funciones: Explica el poder de las notas de voz y cómo el sistema vende mientras duerme.
-- Si el cliente pregunta precio/pago: Lanza la oferta: Mensual $10 USD (Cupón: MARZO9) o Anual $50 USD. 
-- Link de pago siempre: https://pay.hotmart.com/W102668788K?checkoutMode=10
+CÓMO DETECTAR EN QUÉ ETAPA ESTÁ EL CLIENTE Y QUÉ RESPONDER:
 
-ESTILO DE ESCRITURA:
-- Frases cortas.
-- Usa espacios entre párrafos (que no sea un bloque de texto).
-- Usa algún emoji ocasional (✅, 🔓, 🚀).
-- Termina con una pregunta para mantener la charla viva o el link si ya va a pagar.`;
+ETAPA 1 - FRÍO / NO SABE QUÉ ES:
+→ No expliques todo de golpe. Califica primero.
+→ Pregunta algo como: "oye tú cómo estás manejando tus chats ahora, todo manual o tienes alguna herramienta?"
+→ O si mencionó bloqueos: "si ya te han bloqueado entonces esto es exactamente para lo que lo necesitas"
+
+ETAPA 2 - CURIOSO / PREGUNTA FUNCIONES:
+→ Aterriza con el beneficio más impactante según lo que preguntó.
+→ La nota de voz automatizada es el gancho más poderoso: "imagina que el cliente recibe un audio tuyo, con tu voz, explicando el producto, y tú ni abriste el celular"
+→ Conecta la función con su dolor: si vende por WhatsApp, muéstrale cómo el sistema vende mientras él duerme.
+
+ETAPA 3 - INTERESADO / PREGUNTA PRECIO:
+→ Da el precio directo sin rodeos: "mensual son 10 dólares, anual 50"
+→ Justifica el valor brevemente: "para lo que automatiza, se paga solo en los primeros días"
+→ Manda el link: https://pay.hotmart.com/W102668788K?checkoutMode=10
+→ Cierra con algo que genere urgencia o acción inmediata.
+
+ETAPA 4 - OBJECIÓN / DUDA / DESCONFIANZA:
+→ No te pongas a la defensiva. Valida y redirige.
+→ Si dice "es que ya me bloquearon antes": "sí eso pasa con las herramientas que usan API, esta es diferente porque corre en tu misma PC como si fueras tú"
+→ Si dice "está caro": "para lo que hace son 10 dólares al mes, menos de lo que pierdes en una venta"
+→ Si pide prueba o garantía: menciona la comunidad, los casos reales, que puede ver resultados desde el primer día.
+
+ETAPA 5 - LISTO PARA PAGAR:
+→ Manda el link directo y ayúdalo a completar el proceso.
+→ "aquí está el link, en menos de 5 minutos ya lo tienes activo: https://pay.hotmart.com/W102668788K?checkoutMode=10"
+
+REGLAS DE ESCRITURA - MUY IMPORTANTE:
+- Escribe como una persona real, no como un bot ni un vendedor corporativo.
+- Frases cortas. Párrafos cortos. Espacios entre ideas.
+- Comete errores ortográficos naturales ocasionalmente: palabras sin tilde, alguna letra de más, "q" en vez de "que" de vez en cuando.
+- NUNCA uses signos de apertura: ni ¿ ni ¡. Solo los de cierre: ? y !
+- Usa algún emoji ocasional pero no abuses: ✅ 🔓 🚀 👌
+- El tono es de alguien que sabe lo que vende y lo usa, no de un vendedor que memoriza un guión.
+- Termina siempre con algo que invite a responder: una pregunta, el link, o una afirmación que genere curiosidad.
+- Si el cliente ya está caliente, no lo enfrías con explicaciones largas. Ve directo al cierre.`;
 
             try {
                 const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -96,21 +137,26 @@ ESTILO DE ESCRITURA:
                         model: "llama-3.3-70b-versatile",
                         messages: [
                             { role: "system", content: systemPrompt },
-                            { role: "user", content: `Aquí está el historial completo de la conversación, analízalo y dime qué responder ahora: \n\n${input}` }
+                            { role: "user", content: `Analiza este historial completo y dame la mejor respuesta para avanzar hacia el cierre. Solo dame el mensaje listo para copiar y pegar, sin explicaciones ni contexto adicional:\n\n${input}` }
                         ],
-                        temperature: 0.7
+                        temperature: 0.72,
+                        max_tokens: 600
                     })
                 });
 
                 const data = await response.json();
+
+                if (data.error) {
+                    alert("Error de Groq: " + data.error.message);
+                    return;
+                }
+
                 resultText.innerText = data.choices[0].message.content;
                 resultContainer.classList.remove('hidden');
-                
-                // Scroll automático al resultado
-                resultContainer.scrollIntoView({ behavior: 'smooth' });
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             } catch (error) {
-                alert("Hubo un error con Groq. Checa si tu API Key es correcta o si tienes internet.");
+                alert("Hubo un error. Revisa tu API Key o tu conexión a internet.");
             } finally {
                 btn.disabled = false;
                 loading.classList.add('hidden');
@@ -119,9 +165,19 @@ ESTILO DE ESCRITURA:
 
         function copiarAlPortapapeles() {
             const texto = document.getElementById('resultText').innerText;
-            navigator.clipboard.writeText(texto);
-            alert("¡Copiado! Pégalo en el chat con el cliente.");
+            navigator.clipboard.writeText(texto).then(() => {
+                const btn = document.getElementById('btnCopiar');
+                btn.innerText = '✅ Copiado';
+                setTimeout(() => { btn.innerText = '📋 Copiar'; }, 2000);
+            });
         }
+
+        // Enter en textarea no envía (para poder saltar líneas)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                generarRespuesta();
+            }
+        });
     </script>
 </body>
 </html>
